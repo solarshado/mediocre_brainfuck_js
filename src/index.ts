@@ -1,4 +1,4 @@
-import * as BF from "./bf.ts";
+import * as BF from "./bf/mod.ts";
 //import examples from "./examples.json" assert { type: "json" };
 import examples from "./examples.ts";
 
@@ -43,9 +43,9 @@ clearButton.addEventListener("click",clearOutput)
 async function runClick() {
     const code = getCode();
     const input = getInput();
-    const runtime = new BF.Runtime(code,input);
+    const runtime = BF.Runtime.withDefaultParserAndEngine(code,input);
 
-    const output = "" + await runtime.run();
+    const output = BF.util.stringifyResult(await runtime.run());
 
     appendToOutput(output,true);
 }
