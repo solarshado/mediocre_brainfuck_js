@@ -2,8 +2,6 @@ import * as BF from "./bf.ts";
 //import examples from "./examples.json" assert { type: "json" };
 import examples from "./examples.ts";
 
-//document.addEventListener("DOMContentLoaded",function(){
-
 const codeTextArea = document.getElementById("txtCode") as HTMLTextAreaElement;
 const inputTextArea = document.getElementById("txtInput") as HTMLTextAreaElement;
 const outputTextArea = document.getElementById("txtOutput") as HTMLElement;
@@ -24,7 +22,7 @@ const clearButton = document.getElementById("btnClear") as HTMLButtonElement;
         exampleList.appendChild(ex);
     }
     
-})()
+})();
 
 function getCode() { return codeTextArea.value; }
 function getInput() { return inputTextArea.value; }
@@ -49,8 +47,6 @@ async function runClick() {
 
     const output = "" + await runtime.run();
 
-    appendToOutput(output,true)
+    appendToOutput(output,true);
 }
 runButton.addEventListener("click",runClick);
-
-//});
