@@ -1,10 +1,10 @@
 export type ExampleItem = {
-    name:string;
-    source:string;
-    expectedOutput:string;
+    name: string;
+    source: string;
+    expectedOutput: string;
 };
 
-const examples:ExampleItem[] = [
+const examples: ExampleItem[] = [
     {
         // from: https://esolangs.org/wiki/Brainfuck#Hello.2C_World.21
         "name": "Basic Hello World",

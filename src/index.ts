@@ -11,23 +11,23 @@ const clearButton = document.getElementById("btnClear") as HTMLButtonElement;
 (function addExamples() {
     const exampleList = document.getElementById("exampleList") as HTMLUListElement;
 
-    function mkListener(content:string) {
+    function mkListener(content: string) {
         return ()=> codeTextArea.value = content;
     }
 
-    for( const {name,source} of examples ) {
+    for(const { name, source } of examples) {
         const ex = document.createElement("li");
         ex.innerText = name;
-        ex.addEventListener("click",mkListener(source));
+        ex.addEventListener("click", mkListener(source));
         exampleList.appendChild(ex);
     }
-    
+
 })();
 
 function getCode() { return codeTextArea.value; }
 function getInput() { return inputTextArea.value; }
 
-function appendToOutput(string:string,linebreak=false) {
+function appendToOutput(string: string, linebreak = false) {
     if(linebreak) string += "\n";
     outputTextArea.append(string);
 }
@@ -38,15 +38,15 @@ function clearOutput() {
     for(const child of outputTextArea.childNodes)
         outputTextArea.removeChild(child); // TODO dis not work. plx fx
 }
-clearButton.addEventListener("click",clearOutput)
+clearButton.addEventListener("click", clearOutput);
 
 async function runClick() {
     const code = getCode();
     const input = getInput();
-    const runtime = BF.Runtime.withDefaultParserAndEngine(code,input);
+    const runtime = BF.Runtime.withDefaultParserAndEngine(code, input);
 
     const output = BF.util.stringifyResult(await runtime.run());
 
-    appendToOutput(output,true);
+    appendToOutput(output, true);
 }
-runButton.addEventListener("click",runClick);
+runButton.addEventListener("click", runClick);

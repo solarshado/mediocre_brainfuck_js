@@ -4,19 +4,19 @@
         "checkJs": true,
         "strict": true,
         "lib": [
-		"deno.ns",
-		"dom",
-		"dom.iterable",
-		"dom.asynciterable"
-	]
+            "deno.ns",
+            "dom",
+            "dom.iterable",
+            "dom.asynciterable"
+        ]
     },
     "lint": {
         "rules": {
-            "tags": ["reccommended"]
+            "tags": ["recommended"]
         }
     },
     "tasks": {
-	    "build": "deno bundle src/index.ts index.js",
-	    "watch": "deno bundle --watch src/index.ts index.js"
+        "build": "deno bundle src/index.ts index.js",
+        "watch": "deno bundle --watch src/index.ts index.js"
     }
 }

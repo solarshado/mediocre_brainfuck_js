@@ -1,4 +1,4 @@
-import {OptionsFromSettings, } from "./_util.ts";
+import { OptionsFromSettings } from "./_util.ts";
 
 /* const NewlineMode = { } as const; */
 
@@ -11,14 +11,14 @@ export const EOFModes = {
 export type EOFMode = keyof typeof EOFModes;
 
 export type RuntimeSettings = {
-    readonly memoryCellCount: number,
-    readonly memoryCellMinValue: number,
-    readonly memoryCellMaxValue: number,
-    readonly eofMode: EOFMode,
-    readonly enableOctoDebug: boolean,
+    readonly memoryCellCount: number;
+    readonly memoryCellMinValue: number;
+    readonly memoryCellMaxValue: number;
+    readonly eofMode: EOFMode;
+    readonly enableOctoDebug: boolean;
 };
 
-export const DefaultRuntimeSettings:RuntimeSettings = {
+export const DefaultRuntimeSettings: RuntimeSettings = {
     memoryCellCount: 30000,
     memoryCellMinValue: 0,
     memoryCellMaxValue: 2**8,
@@ -33,7 +33,6 @@ export function buildRuntimeSettings(input: RuntimeOptions): RuntimeSettings {
     return buildSettingsFromOptions(input, DefaultRuntimeSettings);
 }
 
-function buildSettingsFromOptions<TSettings, TOptions extends OptionsFromSettings<TSettings>>(input:TOptions, defaults:TSettings):TSettings {
-    return Object.assign({},defaults,input);
+function buildSettingsFromOptions<TSettings, TOptions extends OptionsFromSettings<TSettings>>(input: TOptions, defaults: TSettings): TSettings {
+    return Object.assign({}, defaults, input);
 }
-

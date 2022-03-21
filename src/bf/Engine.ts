@@ -33,21 +33,21 @@ class _BasicEngine implements Engine {
     #instructionPointer = 0;
     #memoryPointer = 0;
     #stdinPointer = 0;
-    readonly #memory:Int8Array;
-    readonly #eofFunc:EOFHandler;
-    readonly #srcCode:string;
+    readonly #memory: Int8Array;
+    readonly #eofFunc: EOFHandler;
+    readonly #srcCode: string;
 
     constructor(
-        parserOutput:ParsedCode,
-        private readonly options:RuntimeSettings,
-        private readonly stdin:string,
+        parserOutput: ParsedCode,
+        private readonly options: RuntimeSettings,
+        private readonly stdin: string,
     ) {
         this.#srcCode = parserOutput.cleanedSource;
         this.#memory = new Int8Array(options.memoryCellCount);
         this.#eofFunc = eofHandlers[options.eofMode];
     }
 
-    async run():Promise<RunResult> {
+    async run(): Promise<RunResult> {
         if(this.#isRunning)
             throw new Error("already running!");
 
@@ -59,7 +59,7 @@ class _BasicEngine implements Engine {
         while(this.#instructionPointer < this.#srcCode.length) {
             await sleep(0);
 
-            const curInst = this.#srcCode[this.#instructionPointer] as "<"|">"|","|"."|"+"|"-"|"["|"]";
+            const curInst = this.#srcCode[this.#instructionPointer] as "<" | ">" | "," | "." | "+" | "-" | "[" | "]";
             const stdinAtEOF = this.#stdinPointer > stdinPointerMax;
 
             switch(curInst) {
@@ -138,8 +138,8 @@ class _BasicEngine implements Engine {
         }
 
         this.#isRunning = false;
-        return {success: true, output: this.#stdout};
+        return { success: true, output: this.#stdout };
     }
 }
 
-export const BasicEngine:EngineBuilder<ParsedCode> = _BasicEngine;
+export const BasicEngine: EngineBuilder<ParsedCode> = _BasicEngine;
