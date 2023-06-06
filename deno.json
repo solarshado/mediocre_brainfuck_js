@@ -17,6 +17,7 @@
     },
     "tasks": {
         "build": "deno bundle src/index.ts index.js",
-        "watch": "deno bundle --watch src/index.ts index.js"
+        "watch": "deno bundle --watch src/index.ts index.js",
+        "fmt": "dprint check"
     }
 }

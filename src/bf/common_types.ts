@@ -16,10 +16,10 @@ export function isErrorResult<T extends BaseResult<unknown, unknown>>(obj: T | u
     return obj !== undefined && obj.success === false;
 }
 
-export type Parser<TParserOutput> = (source: string, options: RuntimeSettings)=> ParseResult<TParserOutput>;
+export type Parser<TParserOutput> = (source: string, options: RuntimeSettings) => ParseResult<TParserOutput>;
 
 export interface EngineBuilder<TParserOutput> {
-    new (parserOutput: TParserOutput, options: RuntimeSettings, stdin: string): Engine;
+    new(parserOutput: TParserOutput, options: RuntimeSettings, stdin: string): Engine;
 }
 
 export interface Engine {

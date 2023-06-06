@@ -1,4 +1,4 @@
-import { RunResult, Result, ErrorPart, ParseResult } from "./common_types.ts";
+import { ErrorPart, ParseResult, Result, RunResult } from "./common_types.ts";
 
 export function stringifyResult(result: RunResult | Result<unknown>): string {
     return result.success ?

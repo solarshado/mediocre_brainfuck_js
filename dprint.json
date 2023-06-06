@@ -1,0 +1,42 @@
+{
+    "lineWidth": 140,
+    "useTabs": false,
+    "indentWidth": 4,
+    "newLineKind": "auto",
+    "typescript": {
+        "ignoreFileCommentText": "deno-fmt-ignore-file",
+
+        "commentLine.forceSpaceAfterSlashes": false,
+
+        "module.sortImportDeclarations": "maintain",
+        "module.sortExportDeclarations": "maintain",
+
+        "arguments.trailingCommas": "never",
+        "parameters.trailingCommas": "never",
+
+        "useBraces": "preferNone",
+        "operatorPosition": "maintain",
+
+        "whileStatement.spaceAfterWhileKeyword": false,
+        "doWhileStatement.spaceAfterWhileKeyword": false,
+        "forInStatement.spaceAfterForKeyword": false,
+        "forOfStatement.spaceAfterForKeyword": false,
+        "forStatement.spaceAfterForKeyword": false,
+        "ifStatement.spaceAfterIfKeyword": false
+    },
+    "json": {
+    },
+    "markdown": {
+    },
+    "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md}"],
+    "excludes": [
+        "**/examples.*",
+        "**/node_modules",
+        "**/*-lock.json"
+    ],
+    "plugins": [
+        "https://plugins.dprint.dev/typescript-0.85.0.wasm",
+        "https://plugins.dprint.dev/json-0.17.3.wasm",
+        "https://plugins.dprint.dev/markdown-0.15.3.wasm"
+    ]
+}

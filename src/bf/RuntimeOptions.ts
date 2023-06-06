@@ -21,7 +21,7 @@ export type RuntimeSettings = {
 export const DefaultRuntimeSettings: RuntimeSettings = {
     memoryCellCount: 30000,
     memoryCellMinValue: 0,
-    memoryCellMaxValue: 2**8,
+    memoryCellMaxValue: 2 ** 8,
     eofMode: EOFModes.ZERO,
     enableOctoDebug: true,
 };
@@ -33,6 +33,9 @@ export function buildRuntimeSettings(input: RuntimeOptions): RuntimeSettings {
     return buildSettingsFromOptions(input, DefaultRuntimeSettings);
 }
 
-function buildSettingsFromOptions<TSettings, TOptions extends OptionsFromSettings<TSettings>>(input: TOptions, defaults: TSettings): TSettings {
+function buildSettingsFromOptions<TSettings, TOptions extends OptionsFromSettings<TSettings>>(
+    input: TOptions,
+    defaults: TSettings
+): TSettings {
     return Object.assign({}, defaults, input);
 }

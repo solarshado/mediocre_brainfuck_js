@@ -40,7 +40,7 @@ class _BasicEngine implements Engine {
     constructor(
         parserOutput: ParsedCode,
         private readonly options: RuntimeSettings,
-        private readonly stdin: string,
+        private readonly stdin: string
     ) {
         this.#srcCode = parserOutput.cleanedSource;
         this.#memory = new Int8Array(options.memoryCellCount);

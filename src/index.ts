@@ -12,7 +12,7 @@ const clearButton = document.getElementById("btnClear") as HTMLButtonElement;
     const exampleList = document.getElementById("exampleList") as HTMLUListElement;
 
     function mkListener(content: string) {
-        return ()=> codeTextArea.value = content;
+        return () => codeTextArea.value = content;
     }
 
     for(const { name, source } of examples) {
@@ -21,7 +21,6 @@ const clearButton = document.getElementById("btnClear") as HTMLButtonElement;
         ex.addEventListener("click", mkListener(source));
         exampleList.appendChild(ex);
     }
-
 })();
 
 function getCode() { return codeTextArea.value; }

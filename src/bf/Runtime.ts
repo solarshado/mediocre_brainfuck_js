@@ -1,7 +1,7 @@
-import { RunResult, ParseResult, isErrorResult, Parser, EngineBuilder } from "./common_types.ts";
+import { EngineBuilder, isErrorResult, Parser, ParseResult, RunResult } from "./common_types.ts";
 import { BasicParser, ParsedCode } from "./Parser.ts";
 import { BasicEngine } from "./Engine.ts";
-import { DefaultRuntimeSettings, RuntimeOptions, RuntimeSettings, buildRuntimeSettings } from "./RuntimeOptions.ts";
+import { buildRuntimeSettings, DefaultRuntimeSettings, RuntimeOptions, RuntimeSettings } from "./RuntimeOptions.ts";
 import { buildRunErrorFromParseError } from "./util.ts";
 
 export const DEFAULT_PARSER = BasicParser;
@@ -17,7 +17,7 @@ export class Runtime<TParserOutput = ParsedCode> {
         readonly input: string,
         options: RuntimeOptions,
         readonly parser: Parser<TParserOutput>,
-        readonly engine: EngineBuilder<TParserOutput>,
+        readonly engine: EngineBuilder<TParserOutput>
     ) {
         this.#settings = buildRuntimeSettings(options);
     }
@@ -25,7 +25,7 @@ export class Runtime<TParserOutput = ParsedCode> {
     static withDefaultParserAndEngine(
         code: string,
         input = "",
-        options?: RuntimeOptions,
+        options?: RuntimeOptions
     ) {
         return new Runtime(
             code,

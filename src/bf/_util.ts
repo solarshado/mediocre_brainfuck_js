@@ -10,9 +10,9 @@ export type Expand<T> = T extends infer U ? { [K in keyof U]: U[K] } : never;
 export type EOFHandler = (cur: number) => number;
 
 export const eofHandlers: { [K in EOFMode]: EOFHandler } = {
-    ZERO: ()=> 0,
-    NEGATIVE_ONE: ()=> -1,
-    NOP: (i: number)=> i,
+    ZERO: () => 0,
+    NEGATIVE_ONE: () => -1,
+    NOP: (i: number) => i,
 } as const;
 
 export type OptionsFromSettings<TDefaults> = { -readonly [P in keyof TDefaults]?: TDefaults[P] };
