@@ -44,7 +44,14 @@ async function runClick() {
     const input = getInput();
     const runtime = BF.Runtime.withDefaultParserAndEngine(code, input);
 
+    const previously = runButton.textContent;
+    runButton.textContent = "Running...";
+    runButton.disabled = true;
+
     const output = BF.util.stringifyResult(await runtime.run());
+
+    runButton.textContent = previously;
+    runButton.disabled = false;
 
     appendToOutput(output, true);
 }
