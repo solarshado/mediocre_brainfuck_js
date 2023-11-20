@@ -1,23 +1,24 @@
 {
-    "compilerOptions": {
-        "allowJs": true,
-        "checkJs": true,
-        "strict": true,
-        "lib": [
-            "deno.ns",
-            "dom",
-            "dom.iterable",
-            "dom.asynciterable"
-        ]
-    },
-    "lint": {
-        "rules": {
-            "tags": ["recommended"]
-        }
-    },
-    "tasks": {
-        "build": "deno bundle src/index.ts index.js",
-        "watch": "deno bundle --watch src/index.ts index.js",
-        "fmt": "dprint check"
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "lib": [
+      "deno.ns",
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "https://esm.sh/preact@10.18.2"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
     }
+  },
+  "tasks": {
+    "build": "mkdir -p dist && cp pub/* dist/ && deno run --allow-read=./src --allow-write=./dist --allow-net=deno.land build.ts",
+    "fmt": "dprint check"
+  }
 }

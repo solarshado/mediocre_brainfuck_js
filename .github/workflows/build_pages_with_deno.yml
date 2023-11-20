@@ -28,14 +28,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+      - uses: denoland/setup-deno@v1
       - run: "deno task build"
-      - run: "mkdir _site"
-      - run: "cp index.* styles.css _site/"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
+        with:
+          path: "dist/"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
