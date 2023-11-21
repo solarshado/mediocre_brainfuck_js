@@ -6,11 +6,13 @@ import * as esbuild from "https://deno.land/x/esbuild@v0.19.6/wasm.js";
 import denoConf from "./deno.json" with {type: "json"};
 
 const args = parseArgs(Deno.args, {
-    string: [ "outDir", /*"outFile",*/ "i" ],
-    collect: "i",
+    boolean: ["watch", "serve"],
+    string: [ "outDir", "inFile" ],
+    collect: "inFile",
+    alias: { watch: "w", inFile: "i" },
     default: {
         outDir: "./dist",
-        i: ["./src/index.ts"],
+        inFile: ["./src/index.ts"],
     }
 });
 
@@ -19,10 +21,12 @@ const wasmFileSystemAccess: esbuild.Plugin = {
     setup(build) {
         const namespace = "wasmFsAdapter";
 
+        // only bundle local files
         build.onResolve({ filter: /^https?:\/\// }, args => {
             return { path: args.path, external: true }
         });
 
+        // shunt stuff into our namespace
         build.onResolve({ filter: /.*/, }, (args) => {
             //console.log(`resolving ${JSON.stringify(args)}`);
             if (args.kind === "entry-point") {
@@ -38,7 +42,9 @@ const wasmFileSystemAccess: esbuild.Plugin = {
             throw Error("not resolvable")
         });
 
+        // grab the stuff in our namespace and load it from the filesystem
         build.onLoad({ filter: /.*/, namespace }, async (args) => {
+            // TOOD? cache with the help of Deno.stat(path).mtime
             //console.log(`loading: ${JSON.stringify(args)}`);
             const contents = await Deno.readTextFile(args.path)
 
@@ -49,49 +55,126 @@ const wasmFileSystemAccess: esbuild.Plugin = {
 
             return { contents, loader }
         });
+
+        // fixup ouput paths
+        build.onEnd((result) => {
+            const {outputFiles, metafile} = result;
+
+            // ensure output file paths are relative
+            if(outputFiles)
+                for(const file of outputFiles) {
+                    const {path} = file;
+                    // strip leading (back)slashes -> (should) ensure path isn't absolute
+                    const relPath = path.replace(/^[\/\\]+/, "");
+                    // probaly unnecessary...
+                    const destPath = Path.normalize(relPath);
+
+                    //console.log(`Fixup path ${path} to ${destPath}...`);
+                    file.path = destPath;
+                }
+
+            // clean references to our namespace out of the metafile
+            // (may have missed some deeper occurances; I'll deal
+            // with those if they become relevant)
+            if(metafile) {
+                const rmNS = (s:string) => s.replace(new RegExp(`^${namespace}:`),"");
+
+                // oh, TypeScript... so silly sometimes
+                type InObj<T> = Parameters<typeof Object.entries<T>>[0];
+                const cleanObjKeys = <T>(o:InObj<T>) => Object.fromEntries(
+                    Object.entries(o).map(([k,v])=>[rmNS(k),v])
+                );
+
+                metafile.inputs = cleanObjKeys(metafile.inputs);
+
+                for(const outFile of Object.values(metafile.outputs)) {
+                    if(outFile.entryPoint !== undefined)
+                        outFile.entryPoint = rmNS(outFile.entryPoint);
+
+                    outFile.inputs = cleanObjKeys(outFile.inputs);
+                }
+            }
+        });
     },
-}
+};
 
-const result = await esbuild.build({
+const buildConfig = {
     plugins: [wasmFileSystemAccess],
-    write: false,
-    //entryPoints: ["src/index.ts",],
-    entryPoints: args.i,
-    bundle: true,
-    format: "esm",
-//    splitting: true,
-    minify: true,
-//    sourcemap: true,
-//    sourcemap: "inline",
-//    target: ["chrome58", "firefox57", "safari11", "edge16"],
+    write: false as const,
 
-    jsx: "automatic",
-//    jsxImportSource: "https://esm.sh/preact",
+    entryPoints: args.i,
+
+    bundle: true as const,
+    format: "esm" as const,
+    metafile: true as const,
+    minify: true,
+    //    splitting: true,
+    //    sourcemap: true,
+    //    sourcemap: "inline",
+    //    target: ["chrome58", "firefox57", "safari11", "edge16"],
+
+    jsx: "automatic" as const,
     jsxImportSource: denoConf.compilerOptions.jsxImportSource,
 
     outdir: args.outDir,
-    //outdir: "./build",
-    metafile: true,
-//    logLevel: "verbose"
-})
+    //    logLevel: "verbose"
+};
 
-//console.log(result);
+const buildContext = await esbuild.context(buildConfig);
 
-const {errors, warnings, outputFiles} = result;
+async function doBuild() {
+    const result = await buildContext.rebuild();
 
-esbuild.stop()
+    //console.log(result);
 
-if(errors.length > 0) {
-    console.log(warnings.join("\n"));
-    console.log(errors.join("\n"));
+    const {errors, warnings, outputFiles} = result;
+    const toWatch = Object.keys(result.metafile.inputs);
+
+    if(warnings.length > 0)
+        console.log(warnings.join("\n"));
+
+    if(errors.length > 0) {
+        console.log(errors.join("\n"));
+        console.log("Not writing to output!!");
+    }
+    else {
+        // should this be done in the plugin? probably?
+        for(const {path, text} of outputFiles) {
+            console.log(`Writing ${path}...`);
+            await Deno.writeTextFile(path, text);
+        }
+    }
+    return toWatch;
 }
-else {
-    for(const {path, text} of outputFiles) {
-        // strip leading (back)slashes -> (should) ensure path isn't absolute
-        const relPath = path.replace(/^[\/\\]+/, "");
-        // probaly unnecessary...
-        const destPath = Path.normalize(relPath);
-        console.log(`Writing ${path} to ${destPath}...`);
-        await Deno.writeTextFile(destPath, text);
+
+let toWatch = await doBuild();
+
+//import archaeopteryx from "https://deno.land/x/archaeopteryx@1.1.0/mod.ts";
+if(args.serve) {
+    const {default: archaeopteryx} = await import("https://deno.land/x/archaeopteryx@1.1.0/mod.ts");
+
+    const server = await archaeopteryx({
+        root: args.outDir,
+        disableReload: true,
+        dontList: true,
+    });
+}
+
+if(args.watch) {
+    while(true) {
+        console.log(`Watching ${toWatch.length} files...`);
+        const watcher = Deno.watchFs(toWatch);
+
+        for await (const event of watcher) {
+            if(event.kind === "access")
+                continue;
+
+            console.log(`fsWatcher got: ${JSON.stringify(event)}, rebuilding...`)
+            break;
+        }
+
+        toWatch = await doBuild();
     }
 }
+
+esbuild.stop()

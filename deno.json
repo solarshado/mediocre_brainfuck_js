@@ -18,7 +18,11 @@
     }
   },
   "tasks": {
-    "build": "mkdir -p dist && cp pub/* dist/ && deno run --allow-read=./src --allow-write=./dist --allow-net=deno.land build.ts",
+    "buildStatic": "mkdir -p dist && cp pub/* dist/",
+    "buildScripts": "deno run --allow-read=./src --allow-write=./dist --allow-net=deno.land build.ts",
+    "build": "deno task buildStatic && deno task buildScripts",
+    "watch": "deno task buildStatic && deno run --allow-read=./src --allow-write=./dist --allow-net=deno.land build.ts --watch",
+    "devServer": "deno task buildStatic && deno run --allow-read=./src,./dist --allow-write=./dist --allow-net=0.0.0.0:8080,deno.land --allow-sys=networkInterfaces build.ts --watch --serve",
     "fmt": "dprint check"
   }
 }
