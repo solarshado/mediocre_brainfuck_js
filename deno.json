@@ -10,7 +10,11 @@
       "dom.asynciterable"
     ],
     "jsx": "react-jsx",
-    "jsxImportSource": "https://esm.sh/preact@10.18.2"
+    "jsxImportSource": "preact"
+  },
+  "imports" : {
+      "preact": "https://esm.sh/preact@10.18.2",
+      "preact/": "https://esm.sh/preact@10.18.2/"
   },
   "lint": {
     "rules": {

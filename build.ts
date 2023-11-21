@@ -16,19 +16,62 @@ const args = parseArgs(Deno.args, {
     }
 });
 
+const importMapPlugin = ((map): esbuild.Plugin =>({
+    name: "importMapHandler",
+    setup(build) {
+
+        const pathToRegexp = (mapFrom:string) =>
+            new RegExp(mapFrom.endsWith("/") ?`^${mapFrom}` : `^${mapFrom}$`);
+
+        const entries = Object.entries(map)
+            .sort(([l,],[r,])=> r.length - l.length)
+            .map(([mapFrom, mapTo]):[RegExp,string]=>([ pathToRegexp(mapFrom), mapTo ]));
+
+        const filter = new RegExp(entries.map(([r,])=> r.source).join("|"));
+
+        //console.log(`big filter: ${filter}`);
+
+        build.onResolve({ filter }, async (args) => {
+            if (args.kind !== "import-statement")
+                return null;
+            if (args.pluginData?.alreadyMapped == true)
+                return null;
+
+            //console.log(`resolving ${JSON.stringify(args)} in importMapHandler`);
+
+            const { path: srcPath } = args;
+
+            for(const [ matcher, mapTo ] of entries) {
+                if (!matcher.test(srcPath))
+                    continue;
+
+                const path = srcPath.replace(matcher, mapTo);
+                console.log(`import map transformed ${srcPath} to ${path}`)
+
+                const opts = (({namespace, kind, importer, resolveDir}): esbuild.ResolveOptions =>{
+                    return {
+                        namespace, kind, importer, resolveDir,
+                        pluginData: {alreadyMapped: true}
+                    };
+                })(args);
+                //console.log(`re-resolving ${path} with ${JSON.stringify(opts)}`)
+
+                const otherResult = await build.resolve(path,opts);
+
+                return otherResult;
+            }
+        });
+    }
+}))(denoConf.imports);
+
 const wasmFileSystemAccess: esbuild.Plugin = {
     name: "wasmFileSystemAccess",
     setup(build) {
         const namespace = "wasmFsAdapter";
 
-        // only bundle local files
-        build.onResolve({ filter: /^https?:\/\// }, args => {
-            return { path: args.path, external: true }
-        });
-
-        // shunt stuff into our namespace
-        build.onResolve({ filter: /.*/, }, (args) => {
-            //console.log(`resolving ${JSON.stringify(args)}`);
+        // shunt local (./) stuff into our namespace
+        build.onResolve({ filter: /^\.\//, }, (args) => {
+            //console.log(`resolving ${JSON.stringify(args)} in wasmFileSystemAccess}`);
             if (args.kind === "entry-point") {
                 return { path: args.path, namespace }
             }
@@ -99,7 +142,7 @@ const wasmFileSystemAccess: esbuild.Plugin = {
 };
 
 const buildConfig = {
-    plugins: [wasmFileSystemAccess],
+    plugins: [importMapPlugin, wasmFileSystemAccess],
     write: false as const,
 
     entryPoints: args.i,
@@ -115,6 +158,8 @@ const buildConfig = {
 
     jsx: "automatic" as const,
     jsxImportSource: denoConf.compilerOptions.jsxImportSource,
+
+    external: ["http://*", "https://*"],
 
     outdir: args.outDir,
     //    logLevel: "verbose"
@@ -153,7 +198,7 @@ let toWatch = await doBuild();
 if(args.serve) {
     const {default: archaeopteryx} = await import("https://deno.land/x/archaeopteryx@1.1.0/mod.ts");
 
-    const server = await archaeopteryx({
+    await archaeopteryx({
         root: args.outDir,
         disableReload: true,
         dontList: true,
